@@ -1,0 +1,8 @@
+.venv
+.vscode
+GundamBot*Test/
+cherryBot.py
+test.py
+AllMobileWeapons.xlsm
+AllMobileWeapons.xlsx
+__pycache__/
