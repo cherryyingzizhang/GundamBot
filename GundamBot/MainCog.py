@@ -17,7 +17,7 @@ class MainCog(commands.Cog, name='General'):
         self.GOTDChannels = []
 
         # load list of gundams into memory
-        with open('Gundams.csv', 'r', encoding='ascii') as f:
+        with open('Gundams.csv', 'r') as f:
             csv_reader = csv.reader(f, delimiter=',')
             for row_values in csv_reader:
                 gundam = Gundam(row_values[0], row_values[1])
