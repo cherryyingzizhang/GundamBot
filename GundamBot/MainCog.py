@@ -51,7 +51,6 @@ class MainCog(commands.Cog, name='General'):
     random_HELP = 'I give you an image, you GUESS THAT GUNDAM (gtg)!'
     @commands.command(name='gtg', help=random_HELP)
     async def guessThatGundam(self, ctx):
-        channel = ctx.channel
 
         randomGundam = random.choice(self.listOfGundams)
 
