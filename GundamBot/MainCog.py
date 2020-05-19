@@ -1,4 +1,5 @@
 from Gundam import Gundam
+from Character import Character
 import random
 import discord
 from discord.ext import tasks, commands
@@ -22,6 +23,13 @@ class MainCog(commands.Cog, name='General'):
             for row_values in csv_reader:
                 gundam = Gundam(row_values[0], row_values[1])
                 self.listOfGundams.append(gundam)
+
+        # load list of characters into memory
+        with open('Characters.csv', 'r', encoding='utf-8') as f:
+            csv_reader = csv.reader(f, delimiter=',')
+            for row_values in csv_reader:
+                character = Character(row_values[0], row_values[1])
+                self.listOfCharacters.append(character)
         
         # if there were any channels subscribed to GotD, load them into memory
         with open('GOTDChannels.csv', 'r', encoding='utf-8') as f:
@@ -48,7 +56,7 @@ class MainCog(commands.Cog, name='General'):
         await ctx.send(response)
     
     # !gundam gtg
-    random_HELP = 'I give you an image, you GUESS THAT GUNDAM (gtg)!'
+    random_HELP = 'I give you an image, you GUESS THE GUNDAM (gtg)!'
     @commands.command(name='gtg', help=random_HELP)
     async def guessThatGundam(self, ctx):
 
@@ -105,6 +113,52 @@ class MainCog(commands.Cog, name='General'):
                 await ctx.send('Good job, {.author}! Full Answer: '.format(msg) + randomGundam.name)
         except requests.exceptions.RequestException as e:
             await ctx.send('Sorry. Guess That Gundam is not working right now. Contact cherry#1048 for help!')
+            print(e)
+
+    # !gundam gtc
+    random_HELP = 'I give you an image, you GUESS THE GUNDAM CHARACTER (gtc)!'
+    @commands.command(name='gtc', help=random_HELP)
+    async def guessThatCharacter(self, ctx):
+        randomCharacter = random.choice(self.listOfCharacters)
+
+        # send imageURL of randomly chosen character
+        try:
+            page = requests.get(randomCharacter.URL)
+            print('randomCharacter.name: ' + randomCharacter.name)
+            print('randomCharacter.URL: ' + randomCharacter.URL)
+            soup = BeautifulSoup(page.text, features="html.parser")
+            tag = soup.find("meta",  property="og:image")
+            imgURL = tag['content']
+            async with aiohttp.ClientSession() as session:
+                async with session.get(imgURL) as resp:
+                    if resp.status != 200:
+                        return await ctx.send('Sorry. Guess The Gundam Character is not working right now because Gundam Wikia seems to be down. Contact cherry#1048 for help!')
+                    data = io.BytesIO(await resp.read())
+                    await ctx.send('Guess This Gundam Character!',file=discord.File(data, 'guessthatgundamcharacter.png'))
+            
+            # define whether or not user is correct or not
+            def check(m):
+                guess = m.content
+                answer = randomCharacter.name
+                answer = answer.replace("(","")
+                answer = answer.replace(")","")
+                answer = answer.replace("  "," ")
+                answerKeywords = answer.lower().split()
+                guessKeywords = guess.lower().split()
+
+                return any(item in guessKeywords for item in answerKeywords)
+
+            # await for user reply
+            try:
+                msg = await self.bot.wait_for('message', check=check, timeout=30.0)
+            except asyncio.TimeoutError:
+                await ctx.send('Too much time has passed. Try again next time, {.author}! Full Answer: '.format(ctx) +  randomCharacter.name)
+            else:
+                if msg.author == self.bot.user:
+                    return
+                await ctx.send('Good job, {.author}! Full Answer: '.format(msg) + randomCharacter.name)
+        except requests.exceptions.RequestException as e:
+            await ctx.send('Sorry. Guess The Gundam Character is not working right now. Contact cherry#1048 for help!')
             print(e)
 
     # !gundam addGOTD
@@ -168,7 +222,6 @@ class MainCog(commands.Cog, name='General'):
     @commands.Cog.listener()
     async def on_message(self, msg):
         # reply to @mentions
-        print(msg.content)
         if (str(self.bot.user.id) in msg.content):
             await msg.channel.send('Shut up, {.author}!'.format(msg))
 
