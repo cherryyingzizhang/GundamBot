@@ -165,6 +165,13 @@ class MainCog(commands.Cog, name='General'):
                 await channel.send('Thanks for inviting me to the server \'{}\'! Type \'!gundam help\' for all of my commands! \nContact cherry#1048 for questions, issues, concerns, etc.'.format(guild.name))
                 break
 
+    @commands.Cog.listener()
+    async def on_message(self, msg):
+        # reply to @mentions
+        if ("@!" + str(self.bot.user.id) in msg.content):
+            await msg.channel.send('Shut up, {.author}!'.format(msg))
+        await self.bot.process_commands(msg)
+
     #################################################
     # Background Tasks
     @tasks.loop(hours=24) #hours=24
