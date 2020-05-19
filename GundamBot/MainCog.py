@@ -171,7 +171,6 @@ class MainCog(commands.Cog, name='General'):
         print(msg.content)
         if (str(self.bot.user.id) in msg.content):
             await msg.channel.send('Shut up, {.author}!'.format(msg))
-        await self.bot.process_commands(msg)
 
     #################################################
     # Background Tasks
