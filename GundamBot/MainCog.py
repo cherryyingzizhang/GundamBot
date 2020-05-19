@@ -168,6 +168,7 @@ class MainCog(commands.Cog, name='General'):
     @commands.Cog.listener()
     async def on_message(self, msg):
         # reply to @mentions
+        print(msg.content)
         if (str(self.bot.user.id) in msg.content):
             await msg.channel.send('Shut up, {.author}!'.format(msg))
         await self.bot.process_commands(msg)
