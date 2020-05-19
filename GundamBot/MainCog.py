@@ -15,6 +15,7 @@ class MainCog(commands.Cog, name='General'):
     def __init__(self, bot):
         self.bot = bot
         self.listOfGundams = []
+        self.listOfCharacters = []
         self.GOTDChannels = []
 
         # load list of gundams into memory
